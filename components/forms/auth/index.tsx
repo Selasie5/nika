@@ -72,10 +72,10 @@ const AuthForm = () => {
                 paddingVertical: 16,
                 borderRadius: 15,
                 alignItems: "center",
-                marginTop: 10,
+                marginTop: 12,
               }}
             >
-              <ThemedText type="link" style={{ color: "#000000" }}>
+              <ThemedText type="subtitle" style={{ color: "#000000" }}>
                 Login to your account
               </ThemedText>
             </TouchableOpacity>

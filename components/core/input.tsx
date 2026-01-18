@@ -1,3 +1,4 @@
+import { useThemeColor } from "@/hooks/use-theme-color";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React, { useState } from "react";
 import { TextInput, TouchableOpacity, View } from "react-native";
@@ -35,6 +36,7 @@ const Input = ({
     setIsPasswordVisible(!isPasswordVisible);
   };
 
+  const color = useThemeColor({ light: "#000000", dark: "#ffffff" }, "text");
   return (
     <View
       style={{
@@ -51,7 +53,7 @@ const Input = ({
           flexDirection: "row",
           alignItems: "center",
           borderWidth: 1,
-          borderColor: "#ccc",
+          borderColor: "#afaeae",
           borderRadius: 8,
           paddingHorizontal: 12,
         }}
@@ -60,7 +62,7 @@ const Input = ({
           <MaterialIcons
             name={leftIcon}
             size={20}
-            color="#888"
+            color={color}
             style={{ marginRight: 8 }}
           />
         )}
@@ -90,7 +92,7 @@ const Input = ({
             <MaterialIcons
               name={isPasswordVisible ? "visibility" : "visibility-off"}
               size={20}
-              color="#888"
+              color={color}
             />
           </TouchableOpacity>
         )}
@@ -100,7 +102,7 @@ const Input = ({
             onPress={onRightIconPress}
             disabled={!onRightIconPress}
           >
-            <MaterialIcons name={rightIcon} size={20} color="#888" />
+            <MaterialIcons name={rightIcon} size={20} color={color} />
           </TouchableOpacity>
         )}
       </View>

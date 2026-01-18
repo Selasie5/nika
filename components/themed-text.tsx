@@ -5,7 +5,13 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link";
+  type?:
+    | "default"
+    | "title"
+    | "defaultSemiBold"
+    | "subtitle"
+    | "link"
+    | "captions";
 };
 
 export function ThemedText({
@@ -26,6 +32,7 @@ export function ThemedText({
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
         type === "subtitle" ? styles.subtitle : undefined,
         type === "link" ? styles.link : undefined,
+        type === "captions" ? styles.captions : undefined,
         style,
       ]}
       {...rest}
@@ -45,18 +52,23 @@ const styles = StyleSheet.create({
     fontFamily: "PPEditorial",
   },
   title: {
-    fontSize: 32,
-    lineHeight: 32,
+    fontSize: 38,
+    lineHeight: 40,
     fontFamily: "PPEditorial",
   },
   subtitle: {
-    fontSize: 20,
-    fontFamily: "PPEditorial",
+    fontSize: 18,
+    fontFamily: "Manrope_400Regular",
+  },
+  captions: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: "Manrope_400Regular",
   },
   link: {
     lineHeight: 30,
     fontSize: 16,
-    color: "#0a7ea4",
-    fontFamily: "PPEditorial",
+
+    fontFamily: "Manrope_400Regular",
   },
 });

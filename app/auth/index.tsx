@@ -66,10 +66,10 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "flex-start",
     gap: 8,
-    paddingInline: 20,
+    paddingHorizontal: 10,
   },
   mainContainer: {
-    paddingInline: 20,
+    paddingHorizontal: 12,
     paddingTop: 80,
     flex: 1,
     backgroundColor: "transparent",
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     backgroundColor: "#000000",
-    borderRadius: 20,
+    borderRadius: 12,
   },
   footer: {
     marginTop: "auto",

@@ -81,6 +81,7 @@ const Input = ({
             flex: 1,
             paddingVertical: 16,
             fontSize: 16,
+            color: color,
           }}
           onChangeText={onChangeText}
           onBlur={onBlur}

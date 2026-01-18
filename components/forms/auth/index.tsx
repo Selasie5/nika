@@ -70,7 +70,7 @@ const AuthForm = () => {
               style={{
                 backgroundColor: "#cccccc",
                 paddingVertical: 16,
-                borderRadius: 15,
+                borderRadius: 10,
                 alignItems: "center",
                 marginTop: 12,
               }}

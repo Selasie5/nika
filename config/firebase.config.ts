@@ -9,6 +9,7 @@ import {
   signOut,
   User,
 } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 //@ts-ignore
 import { getReactNativePersistence } from "firebase/auth";
@@ -30,10 +31,10 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
 
+const db = getFirestore(app);
 export {
   auth,
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
+  createUserWithEmailAndPassword, db, onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
   User

@@ -14,12 +14,9 @@ const Home = () => {
       }}
     >
       <View>
-        <ThemedText type="title">
-          One win is enough — it still counts
-        </ThemedText>
+        <ThemedText type="title">Heyyy 👋,</ThemedText>
         <ThemedText type="subtitle">
-          Capture one small win each day. Over time, Nika helps you reflect on
-          your progress.
+          Start capturing your wins and making progress today!
         </ThemedText>
       </View>
     </SafeAreaView>

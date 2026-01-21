@@ -1,4 +1,7 @@
-import { Manrope_400Regular } from "@expo-google-fonts/manrope";
+import {
+  Manrope_400Regular,
+  Manrope_600SemiBold,
+} from "@expo-google-fonts/manrope";
 import {
   DarkTheme,
   DefaultTheme,
@@ -49,6 +52,7 @@ export default function RootLayout() {
   const [fontLoaded, fontLoadedError] = useFonts({
     PPEditorial: require("../assets/fonts/PPEditorialNew-Light.ttf"),
     Manrope_400Regular,
+    Manrope_600SemiBold,
   });
 
   const onLayoutRootView = useCallback(async () => {

@@ -18,7 +18,7 @@ const Input = ({
   rightIcon,
   onRightIconPress,
 }: {
-  label: string;
+  label?: string;
   placeholder: string;
   secureTextEntry?: boolean;
   type: "email" | "password" | "text" | "number";
@@ -46,7 +46,7 @@ const Input = ({
         width: "100%",
       }}
     >
-      <ThemedText type="subtitle">{label}</ThemedText>
+      {label && <ThemedText type="subtitle">{label}</ThemedText>}
 
       <View
         style={{

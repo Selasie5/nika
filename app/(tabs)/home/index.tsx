@@ -22,6 +22,7 @@ const Home = () => {
             weekday: "long",
             month: "long",
             day: "numeric",
+            year: "numeric",
           })}
         </ThemedText>
         <View style={{ marginTop: 20 }}>
@@ -41,6 +42,7 @@ const Home = () => {
           ]}
           value={text}
           onChangeText={setText}
+          multiline
         />
       </View>
 
@@ -60,6 +62,7 @@ const Home = () => {
               height: 80,
               textAlignVertical: "center",
               alignSelf: "flex-end",
+              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
             }}
           >
             →

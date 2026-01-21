@@ -6,7 +6,6 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { addDoc, collection } from "firebase/firestore";
 import React, { useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import LoaderKitView from "react-native-loader-kit";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Yup from "yup";
 
@@ -174,15 +173,7 @@ const Home = () => {
                     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
                   }}
                 >
-                  {loading ? (
-                    <LoaderKitView
-                      style={{ width: 50, height: 50 }}
-                      name={"LineScale"}
-                      color={"white"}
-                    />
-                  ) : (
-                    "→"
-                  )}
+                  {loading ? "|||" : "→"}
                 </ThemedText>
               </TouchableOpacity>
             </View>

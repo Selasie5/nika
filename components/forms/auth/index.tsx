@@ -1,11 +1,23 @@
 import Form from "@/components/core/form";
 import Input from "@/components/core/input";
 import { ThemedText } from "@/components/themed-text";
-import React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { useAuth } from "@/context/auth.context";
+import { router } from "expo-router";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import * as Yup from "yup";
 
 const AuthForm = () => {
+  const { signUp, signIn } = useAuth();
+  const [isSignUp, setIsSignUp] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
   const authValidationSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
@@ -13,9 +25,26 @@ const AuthForm = () => {
       .required("Password is required"),
   });
 
-  const handleSubmit = (values: { email: string; password: string }) => {
-    console.log("Form submitted with values:", values);
+  const handleSubmit = async (values: { email: string; password: string }) => {
+    setIsLoading(true);
+    setAuthError(null);
+
+    try {
+      const result = isSignUp
+        ? await signUp(values.email, values.password)
+        : await signIn(values.email, values.password);
+
+      if (!result.success && result.error) {
+        setAuthError(result.error.message);
+      }
+      router.push("../../(tabs)/home");
+    } catch (error) {
+      setAuthError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
     <View style={styles.container}>
       <Form
@@ -65,18 +94,43 @@ const AuthForm = () => {
               </View>
             ) : null}
 
+            {authError ? (
+              <View style={{ marginBottom: 8 }}>
+                <ThemedText type="captions" style={{ color: "red" }}>
+                  {authError}
+                </ThemedText>
+              </View>
+            ) : null}
+
             <TouchableOpacity
               onPress={() => formik.handleSubmit()}
-              style={{
-                backgroundColor: "#cccccc",
-                paddingVertical: 16,
-                borderRadius: 10,
-                alignItems: "center",
-                marginTop: 12,
-              }}
+              disabled={isLoading}
+              style={[
+                styles.submitButton,
+                isLoading && styles.submitButtonDisabled,
+              ]}
             >
-              <ThemedText type="subtitle" style={{ color: "#000000" }}>
-                Login to your account
+              {isLoading ? (
+                <ActivityIndicator color="#000000" />
+              ) : (
+                <ThemedText type="subtitle" style={{ color: "#000000" }}>
+                  {isSignUp ? "Create your account" : "Sign in"}
+                </ThemedText>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                setIsSignUp(!isSignUp);
+                setAuthError(null);
+              }}
+              style={styles.toggleButton}
+              disabled={isLoading}
+            >
+              <ThemedText type="captions" style={styles.toggleText}>
+                {isSignUp
+                  ? "Already have an account? Sign in"
+                  : "Don't have an account? Sign up"}
               </ThemedText>
             </TouchableOpacity>
           </View>
@@ -91,8 +145,25 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     gap: 8,
     paddingVertical: 20,
-
     width: "100%",
+  },
+  submitButton: {
+    backgroundColor: "#cccccc",
+    paddingVertical: 16,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 12,
+  },
+  submitButtonDisabled: {
+    opacity: 0.7,
+  },
+  toggleButton: {
+    marginTop: 16,
+    alignItems: "center",
+  },
+  toggleText: {
+    color: "#888",
+    textDecorationLine: "underline",
   },
 });
 

@@ -1,12 +1,20 @@
-import { FormikProvider, useFormik, type FormikValues } from "formik";
+import {
+    FormikProvider,
+    useFormik,
+    type FormikHelpers,
+    type FormikValues,
+} from "formik";
 import React from "react";
 import { View, type ViewProps } from "react-native";
 import * as Yup from "yup";
 
-interface FormProps<T extends FormikValues> extends Omit<ViewProps, 'children'> {
+interface FormProps<T extends FormikValues> extends Omit<
+  ViewProps,
+  "children"
+> {
   initialValues: T;
   validationSchema: Yup.ObjectSchema<T>;
-  onSubmit: (values: T) => void;
+  onSubmit: (values: T, formikHelpers: FormikHelpers<T>) => void | Promise<any>;
   children: (formik: ReturnType<typeof useFormik<T>>) => React.ReactNode;
 }
 

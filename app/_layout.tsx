@@ -33,7 +33,6 @@ function RootLayoutNav() {
     if (isAuthenticated && inAuthGroup) {
       router.replace("/(tabs)/home" as any);
     } else if (!isAuthenticated && !inAuthGroup) {
-      // Redirect unauthenticated users to auth screen
       router.replace("/auth");
     }
   }, [isAuthenticated, isLoading, segments]);
@@ -42,6 +41,7 @@ function RootLayoutNav() {
     <Stack>
       <Stack.Screen name="auth" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="success" options={{ headerShown: false }} />
     </Stack>
   );
 }

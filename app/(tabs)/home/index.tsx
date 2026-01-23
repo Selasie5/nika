@@ -3,14 +3,15 @@ import { ThemedText } from "@/components/themed-text";
 import { db } from "@/config/firebase.config";
 import { useAuth } from "@/context/auth.context";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { router } from "expo-router";
 import { addDoc, collection } from "firebase/firestore";
+import { FormikHelpers } from "formik";
 import React, { useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Yup from "yup";
 
 const Home = () => {
-  const [text, setText] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
   const currentDate = new Date();
 
@@ -36,29 +37,21 @@ const Home = () => {
 
   const style = StyleSheet.create({
     input: {
-      // borderBottomWidth: 1,
-      // borderBottomColor: "#d6d5d5",
-      // fontSize: 25,
-      // fontFamily: "Manrope_400Regular",
-      // fontWeight: "400",
       paddingHorizontal: 12,
       paddingVertical: 16,
       width: "100%",
-    },
-    inputPlaceholder: {
-      fontSize: 25,
-      fontFamily: "Manrope_400Regular",
-      fontWeight: "400",
-    },
-    inputWithText: {
-      fontSize: 30,
+      fontSize: 26,
       fontFamily: "Manrope_600SemiBold",
       fontWeight: "600",
       color: textColor,
+      lineHeight: 36,
     },
   });
   const { user } = useAuth();
-  const handleSubmit = async (values: { achievement: string }) => {
+  const handleSubmit = async (
+    values: { achievement: string },
+    { resetForm }: FormikHelpers<{ achievement: string }>,
+  ) => {
     setLoading(true);
     await addDoc(collection(db, "achievements"), {
       achievement: values.achievement,
@@ -70,7 +63,8 @@ const Home = () => {
       date: currentDate.toISOString(),
       userId: user?.uid,
     });
-    setText("");
+    router.push("/success");
+    resetForm();
     setLoading(false);
   };
 
@@ -121,21 +115,17 @@ const Home = () => {
           >
             <View style={{ width: "100%" }}>
               <TextInput
-                placeholder="It can be small , it still counts"
+                placeholder="It can be small, it still counts"
                 placeholderTextColor="#999999"
                 style={[
                   style.input,
-                  text ? style.inputWithText : style.inputPlaceholder,
-                  { textAlignVertical: "top", minHeight: 100 },
+                  { textAlignVertical: "top", minHeight: 120, maxHeight: 300 },
                 ]}
-                value={text && formik.values.achievement}
-                onChangeText={(value) => {
-                  setText(value);
-                  formik.handleChange("achievement")(value);
-                }}
+                value={formik.values.achievement}
+                onChangeText={formik.handleChange("achievement")}
                 onBlur={() => formik.handleBlur("achievement")}
-                multiline={true}
-                numberOfLines={4}
+                multiline
+                scrollEnabled
               />
               {formik.touched.achievement && formik.errors.achievement ? (
                 <View style={{ marginTop: -16, marginBottom: 8 }}>

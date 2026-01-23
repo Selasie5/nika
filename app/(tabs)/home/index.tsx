@@ -53,19 +53,26 @@ const Home = () => {
     { resetForm }: FormikHelpers<{ achievement: string }>,
   ) => {
     setLoading(true);
-    await addDoc(collection(db, "achievements"), {
-      achievement: values.achievement,
-      date: currentDate.toISOString(),
-      userId: user?.uid,
-    });
-    console.log({
-      ...values,
-      date: currentDate.toISOString(),
-      userId: user?.uid,
-    });
-    router.push("/success");
-    resetForm();
-    setLoading(false);
+    try {
+      console.log("Submitting form with values:", values);
+      console.log("Current user ID:", user?.uid);
+      await addDoc(collection(db, "achievements"), {
+        achievement: values.achievement,
+        date: currentDate.toISOString(),
+        userId: user?.uid,
+      });
+      console.log("Successfully saved:", {
+        ...values,
+        date: currentDate.toISOString(),
+        userId: user?.uid,
+      });
+      resetForm();
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    } finally {
+      setLoading(false);
+      router.push("/success");
+    }
   };
 
   return (

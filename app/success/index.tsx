@@ -19,7 +19,7 @@ const Success = () => {
           <TouchableOpacity
             style={{ alignItems: "center", marginTop: 20 }}
             onPress={() => {
-              router.push("/(tabs)/timeline/index");
+              router.push("/(tabs)/timeline");
             }}
           >
             <ThemedText type="captions" style={{ textAlign: "center" }}>

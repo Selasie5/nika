@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/themed-text";
 import { db } from "@/config/firebase.config";
 import { collection, doc, getDocs } from "firebase/firestore";
+import { format } from "date-fns";
 
 import React from "react";
 import { FlatList, View } from "react-native";
@@ -31,8 +32,20 @@ const Timeline = () => {
       setAchievements(achievements);
     };
 
+    console.log(achievmentList);
     fetchAchievements();
+    transformedForMonthlyAnfdYearlyGrouping(achievmentList);
   }, []);
+
+  const transformedForMonthlyAnfdYearlyGrouping = (achievement: any) => {
+    const newAchievement = achievement.map((item: any) => {
+      {
+        format(item.date, "MMMM");
+        (format(item.date, "YYYY"), console.log(item));
+      }
+    });
+    console.log(newAchievement);
+  };
   return (
     <SafeAreaView
       style={{
@@ -60,8 +73,8 @@ const Timeline = () => {
           data={achievmentList}
           renderItem={({ item }) => (
             <View>
-              <ThemedText type="subtitle">{item.achievement}</ThemedText>
-              <ThemedText type="subtitle">{item.date}</ThemedText>
+              <ThemedText type="subtitle">{item?.achievement}</ThemedText>
+              <ThemedText type="subtitle">{item?.date}</ThemedText>
             </View>
           )}
           keyExtractor={(item) => item.id}

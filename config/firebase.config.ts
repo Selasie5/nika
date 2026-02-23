@@ -3,11 +3,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   initializeAuth,
   onAuthStateChanged,
+  signInWithCredential,
   signInWithEmailAndPassword,
   signOut,
-  User,
+  User
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
@@ -25,6 +27,8 @@ const firebaseConfig = {
   measurementId: "G-SV4CLTTBM8",
 };
 
+import { getStorage } from "firebase/storage";
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = initializeAuth(app, {
@@ -32,11 +36,16 @@ const auth = initializeAuth(app, {
 });
 
 const db = getFirestore(app);
+const storage = getStorage(app);
+
 export {
   auth,
-  createUserWithEmailAndPassword, db, onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  db, GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithCredential,
   signInWithEmailAndPassword,
-  signOut,
-  User
+  signOut, storage, User
 };
+
 

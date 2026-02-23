@@ -1,9 +1,43 @@
 import AuthForm from "@/components/forms/auth";
 import { ThemedText } from "@/components/themed-text";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useAuth } from "@/context/auth.context";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
+import { useEffect } from "react";
+import { Alert, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+WebBrowser.maybeCompleteAuthSession();
+
 export default function HomeScreen() {
+  const { signInGoogle } = useAuth();
+
+  // Replace these with your actual client IDs from Google Cloud Console
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: "435871217259-android.apps.googleusercontent.com", // Example
+    iosClientId: "435871217259-ios.apps.googleusercontent.com", // Example
+    webClientId: "435871217259-web.apps.googleusercontent.com", // Example
+  });
+
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { id_token } = response.params;
+      handleGoogleSignIn(id_token);
+    }
+  }, [response]);
+
+  const handleGoogleSignIn = async (idToken: string) => {
+    try {
+      const { success, error } = await signInGoogle(idToken);
+      if (!success && error) {
+        Alert.alert("Authentication Error", error.message);
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Error", "An unexpected error occurred during Google Sign-In.");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <View style={styles.titleContainer}>
@@ -27,7 +61,11 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.authButtonContainer}>
-          <TouchableOpacity style={styles.authButton}>
+          <TouchableOpacity
+            style={styles.authButton}
+            onPress={() => promptAsync()}
+            disabled={!request}
+          >
             <Image
               source={require("../../assets/icons/google-icon.png")}
               style={{ width: 20, height: 20, marginRight: 10 }}
@@ -112,3 +150,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+

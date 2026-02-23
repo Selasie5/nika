@@ -1,184 +1,374 @@
-import Form from "@/components/core/form";
 import { ThemedText } from "@/components/themed-text";
-import { db } from "@/config/firebase.config";
+import { ThemedView } from "@/components/themed-view";
+import { db, storage } from "@/config/firebase.config";
 import { useAuth } from "@/context/auth.context";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { router } from "expo-router";
-import { addDoc, collection } from "firebase/firestore";
-import { FormikHelpers } from "formik";
-import React, { useState } from "react";
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import * as Yup from "yup";
+import * as ImagePicker from 'expo-image-picker';
+import { addDoc, collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { Camera, Image as ImageIcon, Send, X } from "lucide-react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
+import Animated, { FadeInUp, Layout } from "react-native-reanimated";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+
+const { width } = Dimensions.get('window');
 
 const Home = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const currentDate = new Date();
-
-  const validationSchema = Yup.object().shape({
-    achievement: Yup.string()
-      .min(1, "Achievement must be at least 1 character")
-      .required("Achievement is required"),
-  });
-
-  const backgroundColor = useThemeColor(
-    { light: "#000000", dark: "#ffffff" },
-    "background",
-  );
-
-  const buttonTextColor = useThemeColor(
-    { light: "#ffffff", dark: "#000000" },
-    "text",
-  );
-  const textColor = useThemeColor(
-    { light: "#000000", dark: "#ffffff" },
-    "text",
-  );
-
-  const style = StyleSheet.create({
-    input: {
-      paddingHorizontal: 12,
-      paddingVertical: 16,
-      width: "100%",
-      fontSize: 26,
-      fontFamily: "Manrope_600SemiBold",
-      fontWeight: "600",
-      color: textColor,
-      lineHeight: 36,
-    },
-  });
+  const [achievement, setAchievement] = useState("");
+  const [image, setImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [todayWins, setTodayWins] = useState<any[]>([]);
   const { user } = useAuth();
-  const handleSubmit = async (
-    values: { achievement: string },
-    { resetForm }: FormikHelpers<{ achievement: string }>,
-  ) => {
-    setLoading(true);
-    try {
-      console.log("Submitting form with values:", values);
-      console.log("Current user ID:", user?.uid);
-      await addDoc(collection(db, "achievements"), {
-        achievement: values.achievement,
-        date: currentDate.toISOString(),
-        userId: user?.uid,
+  const scrollViewRef = useRef<ScrollView>(null);
+  const insets = useSafeAreaInsets();
+
+  const currentDate = new Date();
+  const textColor = useThemeColor({}, "text");
+  const inputBg = useThemeColor({ light: "#F3F4F6", dark: "#171717" }, "background");
+  const accentColor = useThemeColor({ light: "#000000", dark: "#FFFFFF" }, "text");
+  const bubbleBg = useThemeColor({ light: "#E5E7EB", dark: "#262626" }, "background");
+
+  useEffect(() => {
+    if (!user) return;
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const q = query(
+      collection(db, "achievements"),
+      where("userId", "==", user.uid),
+      where("date", ">=", startOfDay.toISOString()),
+      orderBy("date", "asc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const wins = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setTodayWins(wins);
+      // Faster scroll to bottom
+      requestAnimationFrame(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
       });
-      console.log("Successfully saved:", {
-        ...values,
-        date: currentDate.toISOString(),
-        userId: user?.uid,
-      });
-      resetForm();
-    } catch (error) {
-      console.error("Error adding document: ", error);
-    } finally {
-      setLoading(false);
-      router.push("/success");
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Handle keyboard show/hide to keep view seamless
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => scrollViewRef.current?.scrollToEnd({ animated: true })
+    );
+    return () => keyboardDidShowListener.remove();
+  }, []);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
     }
   };
 
-  return (
-    <SafeAreaView
-      style={{
-        flexDirection: "column",
-        flex: 1,
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        paddingHorizontal: 20,
-        paddingVertical: 80,
-      }}
-    >
-      <View>
-        <ThemedText type="subtitle">
-          {currentDate.toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-          })}
-        </ThemedText>
-        <View style={{ marginTop: 20 }}>
-          <ThemedText type="title">
-            What's one thing you achieved today ?
-          </ThemedText>
-        </View>
-      </View>
+  const takePhoto = async () => {
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.8,
+    });
 
-      <Form
-        initialValues={{
-          achievement: "",
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {(formik) => (
-          <View
-            style={{
-              flexDirection: "column",
-              flex: 0,
-              justifyContent: "space-between",
-              alignContent: "flex-start",
-              gap: 240,
-              width: "100%",
-            }}
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const uploadImage = async (uri: string) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const filename = `achievements/${user?.uid}/${Date.now()}.jpg`;
+    const storageRef = ref(storage, filename);
+    await uploadBytes(storageRef, blob);
+    return await getDownloadURL(storageRef);
+  };
+
+  const handleSubmit = async () => {
+    if (!achievement.trim() && !image) return;
+
+    setLoading(true);
+    try {
+      let imageUrl = null;
+      if (image) {
+        imageUrl = await uploadImage(image);
+      }
+
+      await addDoc(collection(db, "achievements"), {
+        achievement: achievement.trim(),
+        image: imageUrl,
+        date: new Date().toISOString(),
+        userId: user?.uid,
+      });
+
+      setAchievement("");
+      setImage(null);
+    } catch (error) {
+      console.error("Error adding achievement: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderTodayWin = (win: any, index: number) => (
+    <Animated.View
+      key={win.id}
+      entering={FadeInUp.springify()}
+      layout={Layout.springify()}
+      style={[styles.winBubble, { backgroundColor: bubbleBg }]}
+    >
+      {win.image && (
+        <Image
+          source={{ uri: win.image }}
+          style={styles.winImage}
+          resizeMode="cover"
+        />
+      )}
+      {win.achievement ? (
+        <ThemedText style={styles.winText}>{win.achievement}</ThemedText>
+      ) : null}
+    </Animated.View>
+  );
+
+  return (
+    <ThemedView style={styles.container}>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+        >
+          <ScrollView
+            ref={scrollViewRef}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: todayWins.length > 0 ? 20 : 100 }
+            ]}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
-            <View style={{ width: "100%" }}>
-              <TextInput
-                placeholder="It can be small, it still counts"
-                placeholderTextColor="#999999"
-                style={[
-                  style.input,
-                  { textAlignVertical: "top", minHeight: 120, maxHeight: 300 },
-                ]}
-                value={formik.values.achievement}
-                onChangeText={formik.handleChange("achievement")}
-                onBlur={() => formik.handleBlur("achievement")}
-                multiline
-                scrollEnabled
-              />
-              {formik.touched.achievement && formik.errors.achievement ? (
-                <View style={{ marginTop: -16, marginBottom: 8 }}>
-                  <ThemedText type="captions" style={{ color: "red" }}>
-                    {typeof formik.errors.achievement === "string"
-                      ? formik.errors.achievement
-                      : ""}
-                  </ThemedText>
-                </View>
-              ) : null}
+            <View style={styles.header}>
+              <ThemedText style={styles.dateLabel}>
+                {currentDate.toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </ThemedText>
+              <ThemedText type="title" style={styles.greeting}>
+                Today's Wins
+              </ThemedText>
             </View>
 
-            <View
-              style={{
-                width: "100%",
-                flexDirection: "row",
-                justifyContent: "flex-end",
-              }}
-            >
-              <TouchableOpacity onPress={() => formik.handleSubmit()}>
-                <ThemedText
-                  type="subtitle"
-                  style={{
-                    textAlign: "center",
-                    fontSize: 30,
-                    backgroundColor: backgroundColor,
-                    color: buttonTextColor,
-                    paddingHorizontal: 8,
-                    paddingVertical: 8,
-                    borderRadius: 100,
-                    width: 80,
-                    height: 80,
-                    textAlignVertical: "center",
-                    alignSelf: "flex-end",
-                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                  }}
-                >
-                  {loading ? "|||" : "→"}
+            {todayWins.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <ThemedText style={styles.emptyText}>
+                  No wins logged yet today. What's one thing you're proud of?
                 </ThemedText>
+              </View>
+            ) : (
+              <View style={styles.winsList}>
+                {todayWins.map((win, i) => renderTodayWin(win, i))}
+              </View>
+            )}
+          </ScrollView>
+
+          {/* Chat-style Input Bar */}
+          <View style={[
+            styles.inputWrapper,
+            {
+              borderTopColor: inputBg,
+              backgroundColor: useThemeColor({ light: "#FFFFFF", dark: "#000000" }, "background"),
+            }
+          ]}>
+            {image && (
+              <View style={styles.imagePreviewContainer}>
+                <Image source={{ uri: image }} style={styles.imagePreview} />
+                <TouchableOpacity
+                  style={styles.removeImage}
+                  onPress={() => setImage(null)}
+                >
+                  <X size={16} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <View style={styles.inputInner}>
+              <View style={styles.actionButtons}>
+                <TouchableOpacity onPress={pickImage} style={styles.iconButton}>
+                  <ImageIcon size={22} color={textColor} opacity={0.6} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={takePhoto} style={styles.iconButton}>
+                  <Camera size={22} color={textColor} opacity={0.6} />
+                </TouchableOpacity>
+              </View>
+
+              <TextInput
+                style={[styles.input, { color: textColor, backgroundColor: inputBg }]}
+                placeholder="Log your win..."
+                placeholderTextColor="#999999"
+                value={achievement}
+                onChangeText={setAchievement}
+                multiline
+                onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+              />
+
+              <TouchableOpacity
+                onPress={handleSubmit}
+                disabled={loading || (!achievement.trim() && !image)}
+                style={[
+                  styles.sendButton,
+                  { backgroundColor: accentColor },
+                  (loading || (!achievement.trim() && !image)) && { opacity: 0.3 }
+                ]}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color={useThemeColor({ light: "#FFF", dark: "#000" }, "background")} />
+                ) : (
+                  <Send size={20} color={useThemeColor({ light: "#FFF", dark: "#000" }, "background")} />
+                )}
               </TouchableOpacity>
             </View>
           </View>
-        )}
-      </Form>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </ThemedView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  header: {
+    marginBottom: 20,
+  },
+  dateLabel: {
+    fontSize: 12,
+    opacity: 0.5,
+    fontFamily: "Manrope_600SemiBold",
+    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+  },
+  greeting: {
+    fontSize: 28,
+  },
+  winsList: {
+    gap: 16,
+    paddingBottom: 20,
+  },
+  winBubble: {
+    padding: 12,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    maxWidth: '85%',
+  },
+  winImage: {
+    width: width * 0.7,
+    height: width * 0.5,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  winText: {
+    fontSize: 16,
+    fontFamily: "Manrope_400Regular",
+    lineHeight: 22,
+  },
+  emptyContainer: {
+    paddingVertical: 100,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    opacity: 0.4,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  inputWrapper: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    paddingBottom: Platform.OS === 'ios' ? 12 : 12,
+  },
+  imagePreviewContainer: {
+    marginBottom: 12,
+    flexDirection: 'row',
+  },
+  imagePreview: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+  },
+  removeImage: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: '#FF3B30',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
+  inputInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  iconButton: {
+    padding: 2,
+  },
+  input: {
+    flex: 1,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 16,
+    fontFamily: "Manrope_400Regular",
+    minHeight: 40,
+    maxHeight: 120,
+  },
+  sendButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
 
 export default Home;

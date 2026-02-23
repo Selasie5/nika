@@ -3,6 +3,7 @@ import {
   AuthError,
   logOut,
   signInWithEmail,
+  signInWithGoogle,
   signUpWithEmail,
 } from "@/services/auth.service";
 import React, {
@@ -24,6 +25,9 @@ interface AuthContextType {
   signIn: (
     email: string,
     password: string,
+  ) => Promise<{ success: boolean; error: AuthError | null }>;
+  signInGoogle: (
+    idToken: string,
   ) => Promise<{ success: boolean; error: AuthError | null }>;
   signOut: () => Promise<{ success: boolean; error: AuthError | null }>;
 }
@@ -63,6 +67,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return { success: false, error: result.error };
   };
 
+  const handleSignInGoogle = async (idToken: string) => {
+    const result = await signInWithGoogle(idToken);
+    if (result.user) {
+      return { success: true, error: null };
+    }
+    return { success: false, error: result.error };
+  };
+
   const handleSignOut = async () => {
     const result = await logOut();
     if (!result.error) {
@@ -77,6 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: !!user,
     signUp,
     signIn,
+    signInGoogle: handleSignInGoogle,
     signOut: handleSignOut,
   };
 
@@ -90,3 +103,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+

@@ -1,8 +1,10 @@
 import {
   auth,
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithCredential,
   signInWithEmailAndPassword,
-  signOut,
+  signOut
 } from "@/config/firebase.config";
 
 export interface AuthError {
@@ -73,6 +75,22 @@ export const signInWithEmail = async (email: string, password: string) => {
   }
 };
 
+export const signInWithGoogle = async (idToken: string) => {
+  try {
+    const credential = GoogleAuthProvider.credential(idToken);
+    const userCredential = await signInWithCredential(auth, credential);
+    return { user: userCredential.user, error: null };
+  } catch (error: any) {
+    return {
+      user: null,
+      error: {
+        code: error.code,
+        message: getErrorMessage(error.code),
+      } as AuthError,
+    };
+  }
+};
+
 export const logOut = async () => {
   try {
     await signOut(auth);
@@ -86,3 +104,4 @@ export const logOut = async () => {
     };
   }
 };
+

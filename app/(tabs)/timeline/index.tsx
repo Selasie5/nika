@@ -4,7 +4,7 @@ import { ContributionGraph } from "@/components/ui/contribution-graph";
 import { db } from "@/config/firebase.config";
 import { useAuth } from "@/context/auth.context";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { router } from "expo-router";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { Filter, Plus } from "lucide-react-native";
@@ -43,14 +43,28 @@ const Timeline = () => {
         const q = query(achievementsRef, orderBy("date", "desc"));
         const snapshot = await getDocs(q);
 
-        const achievements = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          // Ensure date is a Date object or formatted string
-          displayDate: doc.data().date?.toDate
-            ? format(doc.data().date.toDate(), "MMM dd, yyyy")
-            : "No Date",
-        }));
+        const achievements = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          const rawDate = data.date;
+          let displayDate = "No Date";
+
+          if (rawDate?.toDate) {
+            displayDate = format(rawDate.toDate(), "MMM dd, yyyy");
+          } else if (typeof rawDate === "string") {
+            const parsed = parseISO(rawDate);
+            if (isValid(parsed)) {
+              displayDate = format(parsed, "MMM dd, yyyy");
+            }
+          } else if (rawDate instanceof Date && isValid(rawDate)) {
+            displayDate = format(rawDate, "MMM dd, yyyy");
+          }
+
+          return {
+            id: doc.id,
+            ...data,
+            displayDate,
+          };
+        });
 
         setAchievements(achievements);
       } catch (error) {

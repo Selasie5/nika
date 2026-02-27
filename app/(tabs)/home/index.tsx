@@ -3,8 +3,15 @@ import { ThemedView } from "@/components/themed-view";
 import { db, storage } from "@/config/firebase.config";
 import { useAuth } from "@/context/auth.context";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import * as ImagePicker from 'expo-image-picker';
-import { addDoc, collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import * as ImagePicker from "expo-image-picker";
+import {
+  addDoc,
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Camera, Image as ImageIcon, Send, X } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
@@ -19,12 +26,15 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import Animated, { FadeInUp, Layout } from "react-native-reanimated";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const Home = () => {
   const [achievement, setAchievement] = useState("");
@@ -37,9 +47,18 @@ const Home = () => {
 
   const currentDate = new Date();
   const textColor = useThemeColor({}, "text");
-  const inputBg = useThemeColor({ light: "#F3F4F6", dark: "#171717" }, "background");
-  const accentColor = useThemeColor({ light: "#000000", dark: "#FFFFFF" }, "text");
-  const bubbleBg = useThemeColor({ light: "#E5E7EB", dark: "#262626" }, "background");
+  const inputBg = useThemeColor(
+    { light: "#F3F4F6", dark: "#171717" },
+    "background",
+  );
+  const accentColor = useThemeColor(
+    { light: "#000000", dark: "#FFFFFF" },
+    "text",
+  );
+  const bubbleBg = useThemeColor(
+    { light: "#E5E7EB", dark: "#262626" },
+    "background",
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -51,11 +70,11 @@ const Home = () => {
       collection(db, "achievements"),
       where("userId", "==", user.uid),
       where("date", ">=", startOfDay.toISOString()),
-      orderBy("date", "asc")
+      orderBy("date", "asc"),
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const wins = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const wins = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setTodayWins(wins);
       // Faster scroll to bottom
       requestAnimationFrame(() => {
@@ -66,11 +85,10 @@ const Home = () => {
     return () => unsubscribe();
   }, [user]);
 
-  // Handle keyboard show/hide to keep view seamless
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => scrollViewRef.current?.scrollToEnd({ animated: true })
+      "keyboardDidShow",
+      () => scrollViewRef.current?.scrollToEnd({ animated: true }),
     );
     return () => keyboardDidShowListener.remove();
   }, []);
@@ -155,7 +173,7 @@ const Home = () => {
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+      <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={{ flex: 1 }}
@@ -165,7 +183,7 @@ const Home = () => {
             ref={scrollViewRef}
             contentContainerStyle={[
               styles.scrollContent,
-              { paddingBottom: todayWins.length > 0 ? 20 : 100 }
+              { paddingBottom: todayWins.length > 0 ? 20 : 100 },
             ]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -197,13 +215,18 @@ const Home = () => {
           </ScrollView>
 
           {/* Chat-style Input Bar */}
-          <View style={[
-            styles.inputWrapper,
-            {
-              borderTopColor: inputBg,
-              backgroundColor: useThemeColor({ light: "#FFFFFF", dark: "#000000" }, "background"),
-            }
-          ]}>
+          <View
+            style={[
+              styles.inputWrapper,
+              {
+                borderTopColor: inputBg,
+                backgroundColor: useThemeColor(
+                  { light: "#FFFFFF", dark: "#000000" },
+                  "background",
+                ),
+              },
+            ]}
+          >
             {image && (
               <View style={styles.imagePreviewContainer}>
                 <Image source={{ uri: image }} style={styles.imagePreview} />
@@ -227,13 +250,18 @@ const Home = () => {
               </View>
 
               <TextInput
-                style={[styles.input, { color: textColor, backgroundColor: inputBg }]}
+                style={[
+                  styles.input,
+                  { color: textColor, backgroundColor: inputBg },
+                ]}
                 placeholder="Log your win..."
                 placeholderTextColor="#999999"
                 value={achievement}
                 onChangeText={setAchievement}
                 multiline
-                onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+                onContentSizeChange={() =>
+                  scrollViewRef.current?.scrollToEnd({ animated: true })
+                }
               />
 
               <TouchableOpacity
@@ -242,13 +270,27 @@ const Home = () => {
                 style={[
                   styles.sendButton,
                   { backgroundColor: accentColor },
-                  (loading || (!achievement.trim() && !image)) && { opacity: 0.3 }
+                  (loading || (!achievement.trim() && !image)) && {
+                    opacity: 0.3,
+                  },
                 ]}
               >
                 {loading ? (
-                  <ActivityIndicator size="small" color={useThemeColor({ light: "#FFF", dark: "#000" }, "background")} />
+                  <ActivityIndicator
+                    size="small"
+                    color={useThemeColor(
+                      { light: "#FFF", dark: "#000" },
+                      "background",
+                    )}
+                  />
                 ) : (
-                  <Send size={20} color={useThemeColor({ light: "#FFF", dark: "#000" }, "background")} />
+                  <Send
+                    size={20}
+                    color={useThemeColor(
+                      { light: "#FFF", dark: "#000" },
+                      "background",
+                    )}
+                  />
                 )}
               </TouchableOpacity>
             </View>
@@ -288,8 +330,8 @@ const styles = StyleSheet.create({
   winBubble: {
     padding: 12,
     borderRadius: 20,
-    alignSelf: 'flex-start',
-    maxWidth: '85%',
+    alignSelf: "flex-start",
+    maxWidth: "85%",
   },
   winImage: {
     width: width * 0.7,
@@ -304,23 +346,23 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     paddingVertical: 100,
-    alignItems: 'center',
+    alignItems: "center",
   },
   emptyText: {
     fontSize: 16,
     opacity: 0.4,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 24,
   },
   inputWrapper: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: 1,
-    paddingBottom: Platform.OS === 'ios' ? 12 : 12,
+    paddingBottom: Platform.OS === "ios" ? 12 : 12,
   },
   imagePreviewContainer: {
     marginBottom: 12,
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   imagePreview: {
     width: 60,
@@ -328,17 +370,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   removeImage: {
-    position: 'absolute',
+    position: "absolute",
     top: -5,
     right: -5,
-    backgroundColor: '#FF3B30',
+    backgroundColor: "#FF3B30",
     borderRadius: 10,
     width: 20,
     height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: "#FFF",
   },
   inputInner: {
     flexDirection: "row",

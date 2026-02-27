@@ -5,10 +5,17 @@ import { db } from "@/config/firebase.config";
 import { useAuth } from "@/context/auth.context";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { format } from "date-fns";
+import { router } from "expo-router";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { Filter, Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Animated, { FadeInRight, FadeInUp } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -17,11 +24,17 @@ const Timeline = () => {
   const [achievementList, setAchievements] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const iconColor = useThemeColor({}, 'icon');
-  const dotColor = useThemeColor({}, 'text');
-  const lineColor = useThemeColor({ light: '#E5E7EB', dark: '#262626' }, 'background');
-  const buttonBg = useThemeColor({ light: '#000000', dark: '#FFFFFF' }, 'text');
-  const buttonText = useThemeColor({ light: '#FFFFFF', dark: '#000000' }, 'background');
+  const iconColor = useThemeColor({}, "icon");
+  const dotColor = useThemeColor({}, "text");
+  const lineColor = useThemeColor(
+    { light: "#E5E7EB", dark: "#262626" },
+    "background",
+  );
+  const buttonBg = useThemeColor({ light: "#000000", dark: "#FFFFFF" }, "text");
+  const buttonText = useThemeColor(
+    { light: "#FFFFFF", dark: "#000000" },
+    "background",
+  );
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -34,7 +47,9 @@ const Timeline = () => {
           id: doc.id,
           ...doc.data(),
           // Ensure date is a Date object or formatted string
-          displayDate: doc.data().date?.toDate ? format(doc.data().date.toDate(), "MMM dd, yyyy") : "No Date"
+          displayDate: doc.data().date?.toDate
+            ? format(doc.data().date.toDate(), "MMM dd, yyyy")
+            : "No Date",
         }));
 
         setAchievements(achievements);
@@ -48,14 +63,22 @@ const Timeline = () => {
     fetchAchievements();
   }, [user]);
 
-  const renderTimelineItem = ({ item, index }: { item: any, index: number }) => (
+  const renderTimelineItem = ({
+    item,
+    index,
+  }: {
+    item: any;
+    index: number;
+  }) => (
     <Animated.View
       entering={FadeInUp.delay(index * 100)}
       style={styles.timelineItem}
     >
       <View style={styles.timelineLineContainer}>
         <View style={[styles.timelineDot, { backgroundColor: dotColor }]} />
-        {index !== achievementList.length - 1 && <View style={[styles.timelineLine, { backgroundColor: lineColor }]} />}
+        {index !== achievementList.length - 1 && (
+          <View style={[styles.timelineLine, { backgroundColor: lineColor }]} />
+        )}
       </View>
       <View style={styles.timelineContent}>
         <ThemedText style={styles.itemDate}>{item.displayDate}</ThemedText>
@@ -67,10 +90,14 @@ const Timeline = () => {
               resizeMode="cover"
             />
           )}
-          <ThemedText type="title" style={styles.achievementText}>{item?.achievement}</ThemedText>
+          <ThemedText type="title" style={styles.achievementText}>
+            {item?.achievement}
+          </ThemedText>
           {item.category && (
             <View style={styles.categoryBadge}>
-              <ThemedText style={styles.categoryText}>{item.category}</ThemedText>
+              <ThemedText style={styles.categoryText}>
+                {item.category}
+              </ThemedText>
             </View>
           )}
         </TouchableOpacity>
@@ -84,12 +111,16 @@ const Timeline = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <View>
-              <ThemedText type="title" style={styles.title}>Timeline</ThemedText>
+              <ThemedText type="title" style={styles.title}>
+                Timeline
+              </ThemedText>
               <ThemedText style={styles.subtitle}>
                 A quiet chronicle of your progress, curated by your daily wins.
               </ThemedText>
             </View>
-            <TouchableOpacity style={[styles.filterButton, { borderColor: lineColor }]}>
+            <TouchableOpacity
+              style={[styles.filterButton, { borderColor: lineColor }]}
+            >
               <Filter size={20} color={iconColor} />
             </TouchableOpacity>
           </View>
@@ -100,9 +131,16 @@ const Timeline = () => {
 
           <View style={styles.sectionHeader}>
             <ThemedText style={styles.sectionTitle}>Daily Wins</ThemedText>
-            <TouchableOpacity style={[styles.addButton, { backgroundColor: buttonBg }]}>
+            <TouchableOpacity
+              style={[styles.addButton, { backgroundColor: buttonBg }]}
+              onPress={() => {
+                router.push("/(tabs)/home");
+              }}
+            >
               <Plus size={20} color={buttonText} />
-              <ThemedText style={[styles.addButtonText, { color: buttonText }]}>Add Win</ThemedText>
+              <ThemedText style={[styles.addButtonText, { color: buttonText }]}>
+                Add Win
+              </ThemedText>
             </TouchableOpacity>
           </View>
 
@@ -115,7 +153,9 @@ const Timeline = () => {
               ))
             ) : (
               <View style={styles.emptyState}>
-                <ThemedText style={styles.emptyText}>No wins yet. Start your journey today.</ThemedText>
+                <ThemedText style={styles.emptyText}>
+                  No wins yet. Start your journey today.
+                </ThemedText>
               </View>
             )}
           </View>
@@ -130,9 +170,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     paddingHorizontal: 24,
     paddingTop: 40,
     marginBottom: 20,
@@ -144,8 +184,8 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     opacity: 0.6,
-    fontFamily: 'Manrope_400Regular',
-    maxWidth: '85%',
+    fontFamily: "Manrope_400Regular",
+    maxWidth: "85%",
     lineHeight: 24,
   },
   filterButton: {
@@ -154,20 +194,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 24,
     marginTop: 20,
     marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Manrope_600SemiBold',
+    fontFamily: "Manrope_600SemiBold",
   },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -175,19 +215,19 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 14,
-    fontFamily: 'Manrope_600SemiBold',
+    fontFamily: "Manrope_600SemiBold",
   },
   timelineList: {
     paddingHorizontal: 24,
     paddingBottom: 40,
   },
   timelineItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 0,
   },
   timelineLineContainer: {
     width: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   timelineDot: {
     width: 10,
@@ -209,15 +249,15 @@ const styles = StyleSheet.create({
   },
   itemDate: {
     fontSize: 12,
-    fontFamily: 'Manrope_600SemiBold',
+    fontFamily: "Manrope_600SemiBold",
     opacity: 0.5,
     marginBottom: 12,
   },
   itemCard: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   achievementImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
     borderRadius: 20,
     marginBottom: 16,
@@ -227,26 +267,26 @@ const styles = StyleSheet.create({
     lineHeight: 30,
   },
   categoryBadge: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     marginTop: 12,
   },
   categoryText: {
     fontSize: 12,
     opacity: 0.5,
-    fontFamily: 'Manrope_400Regular',
-    textTransform: 'uppercase',
+    fontFamily: "Manrope_400Regular",
+    textTransform: "uppercase",
     letterSpacing: 1,
   },
   emptyState: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 60,
   },
   emptyText: {
     opacity: 0.4,
     fontSize: 16,
-    fontFamily: 'Manrope_400Regular',
-    textAlign: 'center',
-  }
+    fontFamily: "Manrope_400Regular",
+    textAlign: "center",
+  },
 });
 
 export default Timeline;

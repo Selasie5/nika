@@ -4,6 +4,7 @@ import { db, storage } from "@/config/firebase.config";
 import { useAuth } from "@/context/auth.context";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import {
   addDoc,
   collection,
@@ -144,6 +145,7 @@ const Home = () => {
 
       setAchievement("");
       setImage(null);
+      router.push("/success");
     } catch (error) {
       console.error("Error adding achievement: ", error);
     } finally {

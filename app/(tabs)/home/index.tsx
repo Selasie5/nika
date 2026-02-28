@@ -198,7 +198,7 @@ const Home = () => {
                   day: "numeric",
                 })}
               </ThemedText>
-              <ThemedText type="title" style={styles.greeting}>
+              <ThemedText type="title" style={styles.title}>
                 Today's Wins
               </ThemedText>
             </View>
@@ -314,6 +314,10 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
   },
+  title: {
+    fontSize: 38,
+    fontFamily: "PPEditorial",
+  },
   dateLabel: {
     fontSize: 12,
     opacity: 0.5,
@@ -351,9 +355,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: 20,
     opacity: 0.4,
-    textAlign: "center",
+    textAlign: "left",
     lineHeight: 24,
   },
   inputWrapper: {

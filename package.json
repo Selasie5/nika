@@ -8,7 +8,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "wraps:cron:test": "node ./scripts/wraps-cron.js --mode=test",
+    "wraps:cron:prod": "node ./scripts/wraps-cron.js --mode=prod"
   },
   "dependencies": {
     "@expo-google-fonts/bricolage-grotesque": "^0.4.1",
@@ -20,6 +22,7 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.6.1",
     "expo": "^54.0.33",
     "expo-auth-session": "~7.0.10",
     "expo-constants": "~18.0.13",
@@ -37,8 +40,10 @@
     "expo-system-ui": "~6.0.9",
     "expo-web-browser": "~15.0.10",
     "firebase": "^12.8.0",
+    "firebase-admin": "^13.4.0",
     "formik": "^2.4.9",
     "lucide-react-native": "^0.575.0",
+    "node-cron": "^4.2.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",

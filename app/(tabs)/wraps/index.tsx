@@ -1,65 +1,64 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useAuth } from '@/context/auth.context';
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { ensureLatestWraps, getWrapsForUser, WrapDoc } from '@/services/wraps.service';
 import { useRouter } from 'expo-router';
 import { User } from 'lucide-react-native';
-import React, { useState } from 'react';
-import { Dimensions, FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Dimensions, FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = (width - 48) / 2;
 
-const WRAPS_DATA = [
-    {
-        id: 'w1',
-        title: 'Finding balance',
-        theme: 'Creative expression and intentional rest.',
-        image: 'https://images.unsplash.com/photo-1502139214982-d0ad755818d8?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 'w2',
-        title: 'Deep Focus',
-        theme: 'Professional boundaries and deep work habits.',
-        image: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 'w3',
-        title: 'Gratitude',
-        theme: 'Daily reflections and small acts of kindness.',
-        image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 'w4',
-        title: 'New horizons',
-        theme: 'Exploring possibilities and building momentum.',
-        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 'w5',
-        title: 'Quiet reflection',
-        theme: 'Mindfulness and internal alignment.',
-        image: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-        id: 'w6',
-        title: 'Action oriented',
-        theme: 'Execution and consistent showing up.',
-        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
-    }
-];
-
 export default function WrapsScreen() {
     const router = useRouter();
+    const { user } = useAuth();
     const [activeFilter, setActiveFilter] = useState('All');
+    const [wraps, setWraps] = useState<WrapDoc[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const iconColor = useThemeColor({}, 'icon');
-    const borderColor = useThemeColor({ light: '#F3F4F6', dark: '#171717' }, 'background');
     const cardBg = useThemeColor({ light: '#F9F9F7', dark: '#151718' }, 'background'); // Pi-like off-white or dark
     const avatarBg = useThemeColor({ light: '#E8E8E3', dark: '#262626' }, 'background');
 
-    const renderWrapCard = ({ item, index }: { item: any, index: number }) => (
+    useEffect(() => {
+        let mounted = true;
+
+        const loadWraps = async () => {
+            if (!user) return;
+            setLoading(true);
+            try {
+                try {
+                    await ensureLatestWraps(user.uid);
+                } catch (error) {
+                    console.error('Error generating latest wraps:', error);
+                }
+
+                const data = await getWrapsForUser(user.uid);
+                if (mounted) setWraps(data);
+            } catch (error) {
+                console.error('Error loading wraps:', error);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+
+        loadWraps();
+        return () => {
+            mounted = false;
+        };
+    }, [user]);
+
+    const filteredWraps = useMemo(() => {
+        if (activeFilter === 'Weekly') return wraps.filter((wrap) => wrap.periodType === 'weekly');
+        if (activeFilter === 'Monthly') return wraps.filter((wrap) => wrap.periodType === 'monthly');
+        return wraps;
+    }, [activeFilter, wraps]);
+
+    const renderWrapCard = ({ item, index }: { item: WrapDoc, index: number }) => (
         <Animated.View
             entering={FadeInUp.delay(index * 100)}
             style={styles.cardContainer}
@@ -69,7 +68,11 @@ export default function WrapsScreen() {
                 onPress={() => router.push(`/wrap/${item.id}` as any)}
                 style={[styles.card, { backgroundColor: cardBg }]}
             >
-                <Image source={{ uri: item.image }} style={styles.cardImage} />
+                {item.imageUrl ? (
+                    <Image source={{ uri: item.imageUrl }} style={styles.cardImage} />
+                ) : (
+                    <View style={[styles.cardImage, { backgroundColor: avatarBg }]} />
+                )}
                 <View style={styles.cardContent}>
                     <ThemedText style={styles.cardTitle}>{item.title}</ThemedText>
                 </View>
@@ -89,7 +92,7 @@ export default function WrapsScreen() {
                     </View>
 
                     <View style={styles.filterSection}>
-                        {['All', 'Favorites', '2024'].map((filter) => (
+                        {['All', 'Weekly', 'Monthly'].map((filter) => (
                             <TouchableOpacity
                                 key={filter}
                                 onPress={() => setActiveFilter(filter)}
@@ -109,14 +112,24 @@ export default function WrapsScreen() {
                     </View>
                 </View>
 
-                <FlatList
-                    data={WRAPS_DATA}
-                    numColumns={2}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.gridContent}
-                    renderItem={renderWrapCard}
-                    showsVerticalScrollIndicator={false}
-                />
+                {loading ? (
+                    <View style={styles.stateContainer}>
+                        <ActivityIndicator size="small" color={iconColor} />
+                    </View>
+                ) : filteredWraps.length === 0 ? (
+                    <View style={styles.stateContainer}>
+                        <ThemedText style={styles.emptyText}>No wraps available yet.</ThemedText>
+                    </View>
+                ) : (
+                    <FlatList
+                        data={filteredWraps}
+                        numColumns={2}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={styles.gridContent}
+                        renderItem={renderWrapCard}
+                        showsVerticalScrollIndicator={false}
+                    />
+                )}
             </SafeAreaView>
         </ThemedView>
     );
@@ -192,5 +205,14 @@ const styles = StyleSheet.create({
         fontFamily: 'Manrope_600SemiBold',
         lineHeight: 25,
         letterSpacing: -0.5,
-    }
+    },
+    stateContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyText: {
+        opacity: 0.5,
+        fontFamily: 'Manrope_400Regular',
+    },
 });

@@ -93,44 +93,67 @@ export default function WrapDetail() {
           <ScrollView contentContainerStyle={styles.scrollContent}>
             {wrap.imageUrl ? (
               <Animated.View entering={FadeIn.delay(150)}>
-                <Image source={{ uri: wrap.imageUrl }} style={styles.heroImage} />
+                <Image
+                  source={{ uri: wrap.imageUrl }}
+                  style={styles.heroImage}
+                />
               </Animated.View>
             ) : null}
 
-            <Animated.View entering={FadeIn.delay(200)} style={styles.titleSection}>
-              <View style={[styles.accentBar, { backgroundColor: accentColor }]} />
+            <Animated.View
+              entering={FadeIn.delay(200)}
+              style={styles.titleSection}
+            >
+              <View
+                style={[styles.accentBar, { backgroundColor: accentColor }]}
+              />
               <ThemedText type="title" style={styles.title}>
-                {title}
+                {wrap.title}
               </ThemedText>
               <ThemedText style={styles.dateRange}>{dateRange}</ThemedText>
             </Animated.View>
 
-            <Animated.View entering={FadeInDown.delay(400)} style={styles.quoteSection}>
+            <Animated.View
+              entering={FadeInDown.delay(400)}
+              style={styles.quoteSection}
+            >
               <ThemedText style={styles.quote}>
                 {wrap.quote || `"${wrap.theme}"`}
               </ThemedText>
             </Animated.View>
 
-            <Animated.View entering={FadeInDown.delay(600)} style={styles.contentSection}>
+            <Animated.View
+              entering={FadeInDown.delay(600)}
+              style={styles.contentSection}
+            >
               <ThemedText style={styles.bodyText}>{wrap.narrative}</ThemedText>
 
-              <View style={[styles.divider, { backgroundColor: accentColor }]} />
+              <View
+                style={[styles.divider, { backgroundColor: accentColor }]}
+              />
 
               <View style={styles.themeSection}>
                 <ThemedText style={styles.sectionLabel}>CORE THEMES</ThemedText>
                 <View style={styles.tagContainer}>
                   {(wrap.tags || []).map((tag, i) => (
-                    <View key={i} style={[styles.tag, { borderColor: accentColor }]}>
+                    <View
+                      key={i}
+                      style={[styles.tag, { borderColor: accentColor }]}
+                    >
                       <ThemedText style={styles.tagText}>{tag}</ThemedText>
                     </View>
                   ))}
                 </View>
               </View>
 
-              <View style={[styles.divider, { backgroundColor: accentColor }]} />
+              <View
+                style={[styles.divider, { backgroundColor: accentColor }]}
+              />
 
               <ThemedText style={styles.bodyText}>
-                <ThemedText style={[styles.highlight, { color: highlightColor }]}>
+                <ThemedText
+                  style={[styles.highlight, { color: highlightColor }]}
+                >
                   {wrap.winsCount}
                 </ThemedText>{" "}
                 wins were logged during this period. The pattern reflects steady

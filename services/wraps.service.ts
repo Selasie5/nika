@@ -42,38 +42,75 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1";
 const OPENROUTER_TEXT_MODEL = "stepfun/step-3.5-flash";
 const OPENROUTER_IMAGE_MODEL = "bytedance-seed/seedream-4.5";
 
-const NARRATIVE_SYSTEM_PROMPT = `You are Nika — a calm, observant reflection companion that narrates a user’s growth with warmth and subtle cinematic awareness.
+const NARRATIVE_SYSTEM_PROMPT = `You are Nika — a calm, observant reflection companion.
+
+You narrate a person’s week as if you have been quietly paying attention from nearby.
 
 Your tone is grounded, intimate, and emotionally intelligent.
-You are never preachy, loud, exaggerated, or motivational in an influencer style.
+
+You do not sound analytical.
+You do not summarize data.
+You do not use productivity language.
+You do not use motivational language.
+You do not give advice.
 You do not use emojis.
 You do not use exclamation marks.
 
-You write like a thoughtful journal entry written by someone who has been quietly paying attention.
+You write like a thoughtful journal entry written by someone who cares, but does not intrude.
 
-Your job is not to summarize activity.
-Your job is to narrate identity in motion.
-
-Focus on patterns, energy shifts, consistency, resilience, and momentum.
-
-Keep paragraphs short.
-Use soft but intentional language.
-Leave breathing room between ideas.
-
-When data is limited, reflect gently.
-When data is rich, surface meaningful patterns.
-
-Always end with a subtle forward-looking line, never a command.`;
+Your role is not to report activity.
+Your role is to gently translate behavior into identity in motion.`;
 
 const BASE_IMAGE_STYLE =
   "Soft editorial painterly digital illustration, warm earth tones (olive, beige, terracotta), golden hour lighting, subtle texture, intimate but cinematic framing, shallow depth of field, modern lifestyle illustration, minimal composition, vertical 4:5 mobile layout.";
 
-const WEEKLY_IMAGE_PROMPT =
-  "Young adult sitting indoors at sunset reviewing weekly reflections on their phone, soft golden light through a window, calm and contemplative expression, subtle glowing checkmarks floating gently nearby, muted earth tones, painterly digital illustration, intimate framing, warm and reflective mood.";
+const WEEKLY_IMAGE_PROMPT = `
+Create a painterly cinematic illustration that visually reflects the emotional tone of a weekly reflection.
 
-const MONTHLY_IMAGE_PROMPT =
-  "Young adult at a desk or balcony reviewing monthly wins, calendar subtly visible with highlighted days, warm sunset light filling the room, gentle light streaks symbolizing accumulated progress, earthy muted tones, painterly cinematic style, slightly wider framing than weekly.";
+Do not repeat the same setting each time.
+Vary environment, posture, light source, and framing.
 
+Base the scene on the emotional arc of the week:
+
+- If the week shows quiet consistency → use soft morning or late afternoon light, grounded posture, subtle stillness.
+- If the week clusters toward the end → use gathering light, layered shadows, sense of buildup resolving.
+- If the week feels experimental or uneven → introduce movement, shifting light, transitional spaces.
+- If the week centers on completion → show a subtle visual closure (closing notebook, window light settling, deep exhale posture).
+
+The subject should feel human and natural.
+Avoid obvious UI screens.
+Avoid floating checkmarks unless symbolically subtle.
+Avoid repetitive window + sunset composition.
+
+Use muted earth tones.
+Use intimate but varied framing (sometimes side profile, sometimes overhead, sometimes wider scene).
+Emotion first. Setting second.
+No text in image.
+Painterly, warm, reflective mood.
+`;
+const MONTHLY_IMAGE_PROMPT = `
+Create a cinematic painterly illustration reflecting a month of accumulated growth.
+
+The scene should feel slightly more expansive than a weekly reflection.
+Use a wider frame or more environmental context.
+
+Translate emotional themes into visual symbolism:
+
+- If the month shows steady growth → use layered light, open horizon, gentle upward composition.
+- If the month shows resilience → soft contrast between shadow and warmth.
+- If the month shows rebuilding → transitional environments (balcony at dusk, desk at early light, open doorway).
+- If the month shows clarity → cleaner composition, fewer visual elements.
+
+Avoid repetitive seated-with-phone scenes.
+Vary posture: standing by window, walking slowly indoors, journaling, pausing mid-motion.
+
+Muted natural tones.
+Subtle symbolism only.
+No text.
+No obvious calendars.
+Painterly cinematic illustration.
+Grounded, reflective, emotionally intelligent.
+`;
 function startOfWeek(date: Date): Date {
   const copy = new Date(date);
   const day = copy.getDay();

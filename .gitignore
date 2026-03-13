@@ -1,45 +1,120 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# =============================================================================
+# NIKA — .gitignore
+# =============================================================================
 
-# dependencies
-node_modules/
 
-secrets/
 
-# Expo
+.env
+.env.local
+.env.development
+.env.production
+.env.preview
+.env.staging
+.env.*.local
+*.env
+
+
+
+# Firebase service account / admin SDK keys
+*-service-account*.json
+*serviceAccount*.json
+*service_account*.json
+google-services.json          # keep out if you manage it via EAS credentials
+GoogleService-Info.plist      # keep out if you manage it via EAS credentials
+secrets/*.json
+
+
+*.jks          # Android keystore
+*.keystore     # Android keystore (alternate extension)
+*.p8           # Apple push notification key
+*.p12          # Apple distribution certificate
+*.key          # Private keys
+*.pem          # PEM certificates / keys
+*.mobileprovision   # Apple provisioning profiles
+*.cer          # Apple certificates
+*.certSigningRequest
+
+
+
+credentials.json
+.easignore
+
+
+
 .expo/
 dist/
 web-build/
 expo-env.d.ts
 
-# Native
-.kotlin/
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
 
-# Metro
-.metro-health-check*
 
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+/ios/
+/android/
 
-# macOS
-.DS_Store
-*.pem
 
-# local env files
-.env*.local
 
-# typescript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+
+
 *.tsbuildinfo
 
-app-example
 
-# generated native folders
-/ios
-/android
+
+.metro-health-check*
+
+
+
+*.apk
+*.aab
+*.ipa
+build/
+builds/
+
+
+
+.DS_Store
+.AppleDouble
+.LSOverride
+*.pem
+
+# Thumbnails
+._*
+
+# Spotlight
+.Spotlight-V100
+.Trashes
+
+
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+
+
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+
+
+.vscode/settings.json       # keep launch.json / extensions.json if desired
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+
+app-example/
+.kotlin/
+*.orig.*

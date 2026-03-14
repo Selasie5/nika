@@ -22,6 +22,7 @@
 google-services.json          # keep out if you manage it via EAS credentials
 GoogleService-Info.plist      # keep out if you manage it via EAS credentials
 secrets/*.json
+eas.json
 
 
 *.jks          # Android keystore
@@ -82,39 +83,15 @@ builds/
 .LSOverride
 *.pem
 
-# Thumbnails
-._*
+# local env files
+.env*.local
+.env
 
-# Spotlight
-.Spotlight-V100
-.Trashes
+# typescript
+*.tsbuildinfo
 
+app-example
 
-
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-
-
-*~
-.fuse_hidden*
-.directory
-.Trash-*
-
-
-
-.vscode/settings.json       # keep launch.json / extensions.json if desired
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-
-
-app-example/
-.kotlin/
-*.orig.*
+# generated native folders
+/ios
+/android
